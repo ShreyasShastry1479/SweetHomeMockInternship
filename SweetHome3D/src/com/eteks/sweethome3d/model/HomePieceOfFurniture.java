@@ -56,7 +56,7 @@ public class HomePieceOfFurniture extends HomeObject implements PieceOfFurniture
   /** 
    * The properties on which home furniture may be sorted.  
    */
-  public enum SortableProperty {CATALOG_ID, NAME, WIDTH, DEPTH, HEIGHT, MOVABLE, 
+  public enum SortableProperty {CATALOG_ID, NAME, WIDTH, DEPTH, HEIGHT, VOLUME, MOVABLE,
                                 DOOR_OR_WINDOW, COLOR, TEXTURE, VISIBLE, X, Y, ELEVATION, ANGLE,
                                 PRICE, VALUE_ADDED_TAX, VALUE_ADDED_TAX_PERCENTAGE, PRICE_VALUE_ADDED_TAX_INCLUDED, LEVEL};
   private static final Map<SortableProperty, Comparator<HomePieceOfFurniture>> SORTABLE_PROPERTY_COMPARATORS;
@@ -105,6 +105,11 @@ public class HomePieceOfFurniture extends HomeObject implements PieceOfFurniture
     SORTABLE_PROPERTY_COMPARATORS.put(SortableProperty.DEPTH, new Comparator<HomePieceOfFurniture>() {
         public int compare(HomePieceOfFurniture piece1, HomePieceOfFurniture piece2) {
           return HomePieceOfFurniture.compare(piece1.depth, piece2.depth);
+        }
+      });
+    SORTABLE_PROPERTY_COMPARATORS.put(SortableProperty.VOLUME, new Comparator<HomePieceOfFurniture>() {
+        public int compare(HomePieceOfFurniture piece1, HomePieceOfFurniture piece2) {
+          return HomePieceOfFurniture.compare(piece1.getVolume(), piece2.getVolume());
         }
       });
     SORTABLE_PROPERTY_COMPARATORS.put(SortableProperty.MOVABLE, new Comparator<HomePieceOfFurniture>() {
@@ -571,7 +576,14 @@ public class HomePieceOfFurniture extends HomeObject implements PieceOfFurniture
   }
 
   /**
-   * Sets the width of this piece of furniture. Once this piece is updated, 
+   * Returns the volume of this piece of furniture (width x depth x height).
+   */
+  public float getVolume() {
+    return this.width * this.depth * this.height;
+  }
+
+  /**
+   * Sets the width of this piece of furniture. Once this piece is updated,
    * listeners added to this piece will receive a change notification.
    * @throws IllegalStateException if this piece of furniture isn't resizable
    */
