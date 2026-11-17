@@ -750,8 +750,35 @@ public class FurnitureTable extends JTable implements View, Printable {
           return headerRendererLabel;
         }
       };
+    List<TableColumn> printedColumns = new ArrayList<TableColumn>();
+    boolean levelColumnDisplayed = false;
     for (int columnIndex = 0, n = columnModel.getColumnCount(); columnIndex < n; columnIndex++) {
-      final TableColumn tableColumn = columnModel.getColumn(columnIndex);
+      TableColumn tableColumn = columnModel.getColumn(columnIndex);
+      printedColumns.add(tableColumn);
+      if (tableColumn.getIdentifier() == HomePieceOfFurniture.SortableProperty.LEVEL) {
+        levelColumnDisplayed = true;
+      }
+    }
+    // Add a Level column to the printed table only (the on-screen columns stay unchanged)
+    // so that furniture rows of the different levels can be distinguished
+    Home home = (Home)((FurnitureTreeTableModel)getModel()).getRoot();
+    if (!levelColumnDisplayed
+        && home.getLevels().size() > 0
+        && columnModel instanceof FurnitureTableColumnModel) {
+      TableColumn levelColumn = ((FurnitureTableColumnModel)columnModel).getAvailableColumn(
+          HomePieceOfFurniture.SortableProperty.LEVEL);
+      if (levelColumn != null) {
+        int nameColumnIndex = -1;
+        for (int i = 0; i < printedColumns.size(); i++) {
+          if (printedColumns.get(i).getIdentifier() == HomePieceOfFurniture.SortableProperty.NAME) {
+            nameColumnIndex = i;
+            break;
+          }
+        }
+        printedColumns.add(nameColumnIndex + 1, levelColumn);
+      }
+    }
+    for (final TableColumn tableColumn : printedColumns) {
       // Create a printable column from existing table column
       TableColumn printableColumn = new TableColumn();
       printableColumn.setIdentifier(tableColumn.getIdentifier());
@@ -1087,6 +1114,14 @@ public class FurnitureTable extends JTable implements View, Printable {
       }
     }
     
+    /**
+     * Returns the column available for the given <code>property</code>, 
+     * whether it's currently displayed or not.
+     */
+    public TableColumn getAvailableColumn(HomePieceOfFurniture.SortableProperty property) {
+      return this.availableColumns.get(property);
+    }
+
     /**
      * Updates displayed columns list from furniture visible properties. 
      */
