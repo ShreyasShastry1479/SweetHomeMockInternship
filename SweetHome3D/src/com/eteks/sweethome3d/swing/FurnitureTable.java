@@ -828,12 +828,15 @@ public class FurnitureTable extends JTable implements View, Printable {
         updateTableColumnsWidth(0);
       }
       setGridColor(gridColor);
-      Printable printable = getPrintable(PrintMode.FIT_WIDTH, null, null);
-      int pageExists = printable.print(g, pageFormat, pageIndex);
-      // Restore column model and grid color to their previous values
-      setColumnModel(oldColumnModel);
-      setGridColor(oldGridColor);
-      return pageExists;
+      try {
+        Printable printable = getPrintable(PrintMode.FIT_WIDTH, null, null);
+        return printable.print(g, pageFormat, pageIndex);
+      } finally {
+        // Always restore column model and grid color to their previous values,
+        // even if printing fails, so the on-screen table is never left in print mode
+        setColumnModel(oldColumnModel);
+        setGridColor(oldGridColor);
+      }
     } else {
       // Print synchronously table in Event Dispatch Thread
       // The best solution should be to be able to print out of Event Dispatch Thread
